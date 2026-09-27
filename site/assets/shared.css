@@ -129,3 +129,24 @@ figcaption{font-size:14px;color:var(--muted);margin-top:8px}
 .visually-hidden{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 @media print{.topbar,.tools,.pager{display:none}details.section{break-inside:avoid;box-shadow:none}}
+/* My notes (button + panel on every page) */
+:root{--on-maize:#1b1b19}
+.aw-notes-btn{position:fixed;right:16px;bottom:16px;z-index:40;background:var(--accent);color:var(--accent-ink);border-color:var(--accent);border-radius:999px;padding:11px 16px;font-size:15px;box-shadow:var(--shadow)}
+.aw-count{display:inline-grid;place-items:center;min-width:24px;height:24px;padding:0 7px;border-radius:999px;background:var(--maize);color:var(--on-maize);font-size:13px;font-weight:750}
+.aw-notes-panel{position:fixed;right:16px;bottom:74px;z-index:41;width:min(480px,calc(100vw - 32px));max-height:min(76vh,720px);overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:16px 18px}
+.aw-notes-panel[hidden]{display:none}
+.aw-notes-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.aw-notes-head h2{font-size:21px}
+.aw-notes-panel p{font-size:14px;margin:6px 0 10px}
+.aw-notes-panel label{display:block;font-size:14px;margin-bottom:4px}
+.aw-actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.aw-preview{border-top:1px solid var(--line);padding-top:8px;font-size:14px}
+.aw-preview h3{font-size:12.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:14px 0 6px}
+.aw-preview .item{margin:6px 0;padding:8px 10px;background:var(--surface-2);border-radius:8px}
+.aw-preview .item b{display:block;font-size:13px}
+.aw-preview .item p{margin:3px 0 0;white-space:pre-wrap;max-width:none;font-size:14px}
+.aw-clear{margin-top:12px;font-size:13px;color:var(--danger);background:transparent;box-shadow:none}
+details.record .record-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+details.record textarea{min-height:110px}
+details.record label{display:block;margin-bottom:6px}
+@media print{.aw-notes-btn,.aw-notes-panel{display:none}}

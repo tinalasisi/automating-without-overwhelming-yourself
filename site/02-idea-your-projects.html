@@ -312,6 +312,14 @@ dl.idea-dl dd{margin:0}
     </div>
   </details>
 
+  <details class="section record" open>
+    <summary><h2>Your notes</h2><span class="meta">saves as you type</span></summary>
+    <div class="section-body">
+      <p class="muted">Type as you go. It saves in this browser. The <b>My notes</b> button (bottom right) downloads everything from every page as one file.</p>
+      <div class="record-grid"><div><label for="n02-1">Our project and who&#x27;s at the table</label><textarea id="n02-1" rows="4" data-persist="notes:02:1" data-export-label="Our project and who&#x27;s at the table"></textarea></div><div><label for="n02-2">Questions to ask the client</label><textarea id="n02-2" rows="4" data-persist="notes:02:2" data-export-label="Questions to ask the client"></textarea></div></div>
+    </div>
+  </details>
+
   <nav class="pager" aria-label="Sections">
     <a href="01-should-you-automate.html">← 1 · Should you automate it?</a>
     <a href="index.html">Outline</a>
@@ -613,7 +621,7 @@ const IDEA_DATA = {
           '<ul class="questions">' + st.questions.map(function (q) { return '<li>' + esc(q) + '</li>'; }).join("") + '</ul>' +
           '<div class="answer">' +
             '<label for="idea-answer">Your team\'s answer: ' + esc(st.name) + '</label>' +
-            '<textarea id="idea-answer" rows="6" data-persist="' + esc(k) + '" placeholder="' + esc(st.placeholder) + '"></textarea>' +
+            '<textarea id="idea-answer" rows="6" data-export-label="' + esc("IDEA: " + (p.name || p.id) + " · " + st.name) + '" data-persist="' + esc(k) + '" placeholder="' + esc(st.placeholder) + '"></textarea>' +
           '</div>' +
         '</div>' +
         '<details class="reveal"><summary>Show an example for this project</summary><p>' + esc(p.ex[st.key]) + '</p></details>';
