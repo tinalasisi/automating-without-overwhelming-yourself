@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Hands-on Build</title>
-<link rel="stylesheet" href="assets/shared.css?v=4">
-<script src="assets/shared.js?v=4"></script>
+<link rel="stylesheet" href="assets/shared.css?v=5">
+<script src="assets/shared.js?v=5"></script>
 <style>
 /* page-only styles; var(--tokens) only */
 .section-body h4.sub{font-size:15px;font-weight:750;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:26px 0 10px}
@@ -178,6 +178,14 @@ ol.steps>li ul{margin:6px 0;padding-left:22px;list-style:disc}
   </details>
 
   <!-- 2 -->
+  <details class="section" open id="run-build">
+    <summary><h2>Run it on your laptop: build your own</h2><span class="meta">step by step</span></summary>
+    <div class="section-body">
+      <p class="lede" style="font-size:1.05em">Tell it where your copy of the repo is, your tool and your project. It writes your terminal commands and a starting prompt you can edit.</p>
+      <div class="runlocal" data-mode="build"></div>
+    </div>
+  </details>
+
   <details class="section">
     <summary><h2>Pick your sandbox file</h2><span class="meta">Step 0</span></summary>
     <div class="section-body">
@@ -571,5 +579,6 @@ Everything in this folder is dummy data made for a workshop. Treat it as if it w
   if(st.mode==='running')startTick();
 })();
 </script>
+<script src="assets/runlocal.js?v=1"></script>
 </body>
 </html>

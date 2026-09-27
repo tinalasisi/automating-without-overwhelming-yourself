@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Three Live Demos</title>
-<link rel="stylesheet" href="assets/shared.css?v=4">
-<script src="assets/shared.js?v=4"></script>
+<link rel="stylesheet" href="assets/shared.css?v=5">
+<script src="assets/shared.js?v=5"></script>
 <style>
 /* page-only styles: var(--tokens) only, no color literals */
 
@@ -188,6 +188,14 @@ details.notes code{overflow-wrap:anywhere}
 
 
   <!-- DEMO 1 -->
+  <details class="section" open id="run-demo">
+    <summary><h2>Run a demo on your laptop</h2><span class="meta">step by step</span></summary>
+    <div class="section-body">
+      <p class="lede" style="font-size:1.05em">Tell it where your copy of the repo is and which tool you use. It writes the exact commands and the prompt for you.</p>
+      <div class="runlocal" data-mode="demo"></div>
+    </div>
+  </details>
+
   <details class="section demo shape-1" open id="demo1">
     <summary><h2><span class="demo-badge">Demo 1</span> Intake → triage</h2><span class="meta">6 min</span></summary>
     <div class="section-body">
@@ -553,5 +561,6 @@ I don't think any of this needs AI. Tell me if you disagree.</pre>
   render();
 })();
 </script>
+<script src="assets/runlocal.js?v=1"></script>
 </body>
 </html>
