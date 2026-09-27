@@ -124,7 +124,7 @@
       L.push((fs.length?'Look at '+fs.join(' and ')+' in this folder. '+(many?'They are the originals, so don\'t edit them.':'It\'s the original, so don\'t edit it.'):'Look at the data files in this folder. They are the originals, so don\'t edit them.')+' Everything here is dummy data.','');
       if(F('unit').value.trim())L.push('The smallest useful step: '+F('unit').value.trim(),'');
       var cols=F('columns').value.trim(),out=F('output').value.trim()||'results.csv';
-      L.push('Write a short Python script that creates '+out+(cols?(txt?' with these columns: ':' with every original row plus these new columns: ')+cols:'')+'.');
+      L.push('Write a short Python script that creates '+out+(cols?(txt||many?' with these columns: ':' with every original row plus these new columns: ')+cols:'')+'.');
       var rules=F('rules').value.split('\n').map(function(r){return r.trim();}).filter(Boolean);
       if(rules.length){L.push('Rules, in code:');rules.forEach(function(r){L.push('- '+r);});}
       L.push('If a row doesn\'t fit the rules, mark it "needs review" and give the reason. Don\'t guess.');
