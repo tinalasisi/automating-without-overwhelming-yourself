@@ -88,7 +88,7 @@
     w.document.write('<!doctype html><title>My notes</title><pre style="white-space:pre-wrap;font:14px/1.5 -apple-system,Helvetica,Arial,sans-serif;max-width:780px;margin:24px auto">'+esc(toMarkdown())+'</pre>');
     w.document.close();w.focus();setTimeout(function(){w.print();},300);}
   var btn,panel,preview;
-  function updateCount(){if(!btn)return;var n=entries().length;btn.querySelector('.aw-count').textContent=n;if(panel&&!panel.hidden)renderPreview();}
+  function updateCount(){if(!btn)return;var es=entries(),n=es.length;btn.querySelector('.aw-count').textContent=n+' saved';btn.title=n?n+' answer'+(n===1?'':'s')+' saved from the boxes on this site. Click to review and download.':'Nothing saved yet. Type in any answer box and it is saved here.';if(panel){var pg={};es.forEach(function(e){pg[e.meta.title]=1;});var np=Object.keys(pg).length;panel.querySelector('.aw-summary').textContent=n?(n+' answer'+(n===1?'':'s')+' saved so far, from '+np+' page'+(np===1?'':'s')+'.'):'Nothing saved yet.';if(!panel.hidden)renderPreview();}}
   function renderPreview(){
     preview.textContent='';var es=entries(),cur=null;
     if(!es.length){var p=document.createElement('p');p.className='muted';p.textContent='Nothing written yet. Type in any answer box on any page and it shows up here.';preview.appendChild(p);return;}
@@ -104,12 +104,12 @@
     if(document.getElementById('aw-notes-btn'))return;
     btn=document.createElement('button');btn.type='button';btn.id='aw-notes-btn';btn.className='aw-notes-btn';
     btn.setAttribute('aria-controls','aw-notes-panel');btn.setAttribute('aria-expanded','false');
-    btn.innerHTML='My notes <span class="aw-count">0</span>';
+    btn.innerHTML='My notes <span class="aw-count">0 saved</span>';
     panel=document.createElement('div');panel.id='aw-notes-panel';panel.className='aw-notes-panel';panel.hidden=true;
     panel.setAttribute('role','dialog');panel.setAttribute('aria-labelledby','aw-notes-title');
     panel.innerHTML='<div class="aw-notes-head"><h2 id="aw-notes-title">My notes</h2><button type="button" class="aw-close" aria-label="Close my notes">Close</button></div>'+
-      '<p class="muted">Everything you have typed on any page of this site. It is saved in this browser only, so download it before you leave.</p>'+
-      '<label for="aw-team">Table and names</label><input id="aw-team" type="text" placeholder="Table 4: Ana, Ben, Chris">'+
+      '<p class="muted">This collects what you type in the answer boxes on every page: your IDEA answers, the “Your notes” boxes, and the demo findings you tick. <strong class="aw-summary"></strong> It is saved in this browser only, so download it before you leave.</p>'+
+      '<label for="aw-team">Your names (optional)</label><input id="aw-team" type="text" placeholder="e.g. Ana, Ben and Chris" aria-describedby="aw-team-hint"><p class="muted aw-hint" id="aw-team-hint">Added to the top of your download and to its file name, so you can tell whose notes are whose.</p>'+
       '<div class="aw-actions"><button type="button" class="btn btn-primary" data-aw="download">Download (.md)</button><button type="button" class="btn" data-aw="copy">Copy all</button><button type="button" class="btn" data-aw="print">Print or save as PDF</button></div>'+
       '<div class="aw-preview" aria-live="polite"></div>'+
       '<button type="button" class="aw-clear" data-aw="clear">Clear everything</button>';

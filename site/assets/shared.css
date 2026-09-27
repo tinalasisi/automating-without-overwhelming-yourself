@@ -150,3 +150,5 @@ details.record .record-grid{display:grid;grid-template-columns:repeat(auto-fit,m
 details.record textarea{min-height:110px}
 details.record label{display:block;margin-bottom:6px}
 @media print{.aw-notes-btn,.aw-notes-panel{display:none}}
+.aw-notes-panel .aw-hint{font-size:12.5px;margin:4px 0 0}
+.aw-count{white-space:nowrap}
