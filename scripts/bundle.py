@@ -15,9 +15,9 @@ CSS_BLOCK = '<style data-shared="css">\n' + css + '\n</style>'
 JS_BLOCK = '<script data-shared="js">\n' + js + '\n</script>'
 for page in sorted(ROOT.glob("*.html")):
     s = page.read_text(); before = s
-    s = re.sub(r'<link[^>]+href="assets/shared\.css"[^>]*>', lambda m: CSS_BLOCK, s)
+    s = re.sub(r'<link[^>]+href="assets/shared\.css(?:\?[^"]*)?"[^>]*>', lambda m: CSS_BLOCK, s)
     s = re.sub(r'<style data-shared="css">.*?</style>', lambda m: CSS_BLOCK, s, flags=re.S)
-    s = re.sub(r'<script[^>]+src="assets/shared\.js"[^>]*>\s*</script>', lambda m: JS_BLOCK, s)
+    s = re.sub(r'<script[^>]+src="assets/shared\.js(?:\?[^"]*)?"[^>]*>\s*</script>', lambda m: JS_BLOCK, s)
     s = re.sub(r'<script data-shared="js">.*?</script>', lambda m: JS_BLOCK, s, flags=re.S)
     for name, uri in IMG.items():
         s = s.replace(f"assets/{name}", uri)
