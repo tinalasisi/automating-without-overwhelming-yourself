@@ -37,7 +37,16 @@
   var DEFAULT_PATH='~/automating-without-overwhelming-yourself';
 
   function h(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-  function base(p){p=(p||'').trim().replace(/^["']+|["']+$/g,'').replace(/[\\\/]+$/,'');return p||DEFAULT_PATH;}
+  function base(p){p=(p||'').trim().replace(/^["']+|["']+$/g,'').replace(/[\\\/]+$/,'');return p||null;}
+  var NAME='automating-without-overwhelming-yourself';
+  function goRepo(os,root){
+    if(root)return 'cd '+q(os,root);
+    return os==='win'
+      ?'$r = Get-ChildItem $HOME -Directory -Recurse -Depth 3 -Filter '+NAME+' -ErrorAction SilentlyContinue | Select-Object -First 1; if ($r) { Set-Location $r.FullName; Get-Location } else { "Not found. Clone the repo first." }'
+      :'R=$(find ~ -maxdepth 4 \\( -path ~/Library -o -path ~/.Trash \\) -prune -o -type d -name '+NAME+' -print 2>/dev/null | head -1); if [ -n "$R" ]; then cd "$R" && pwd; else echo "Not found. Clone the repo first."; fi';
+  }
+  function rel(os){return [].slice.call(arguments,1).join(os==='win'?'\\':'/');}
+  function goStep(os,root){return step('Go to your copy of the repo.',block('Terminal',goRepo(os,root))+(root?'':'<p class="rl-hint">This finds the folder you cloned, wherever it is, and moves you into it. It prints the folder it found. If it says “Not found”, run <code>git clone '+REPO+'.git</code> first, then run this again. Two copies? It picks the first one; paste the right path in step 1 instead.</p>'))+step('Get the latest version.',block('Terminal','git pull'));}
   function join(os){var sep=os==='win'?'\\':'/';return [].slice.call(arguments,1).join(sep);}
   function q(os,p){if(os!=='win'&&p.indexOf('~/')===0)return '~/"'+p.slice(2)+'"';return '"'+p+'"';}
   function and(os){return os==='win'?'; ':' && ';}
@@ -47,8 +56,8 @@
   function sel(id,key,label,opts){return '<div><label for="'+id+'">'+h(label)+'</label><select id="'+id+'" data-persist="'+key+'" data-export-label="'+h(label)+'">'+opts.map(function(o){return '<option value="'+o[0]+'">'+h(o[1])+'</option>';}).join('')+'</select></div>';}
   function common(m){
     return '<div class="rl-grid">'+
-      '<div class="rl-wide"><label for="'+m+'-path">1. Where is your copy of the repo?</label><input type="text" id="'+m+'-path" data-persist="local:path" data-export-label="Where the repo is on my laptop" placeholder="'+DEFAULT_PATH+'">'+
-      '<p class="rl-hint">Not sure? In your terminal, go into the folder you cloned and type <code>pwd</code> (Mac) or <code>Get-Location</code> (Windows), then paste the answer here. You can also drag the folder onto the terminal window to see its path.</p></div>'+
+      '<div class="rl-wide"><label for="'+m+'-path">1. Where is your copy of the repo? (optional)</label><input type="text" id="'+m+'-path" data-persist="local:path" data-export-label="Where the repo is on my laptop" placeholder="Leave empty: the first command finds it for you">'+
+      '<p class="rl-hint">Already cloned it? Leave this empty. The first command below finds your copy wherever you put it. If you know the path, paste it here instead. To see it, go into the folder in your terminal and type <code>pwd</code> (Mac) or <code>Get-Location</code> (Windows).</p></div>'+
       sel(m+'-os','local:os','2. Your computer',[['mac','Mac or Linux (Terminal)'],['win','Windows (PowerShell)']])+
       sel(m+'-tool','local:tool','3. Your AI tool',[['claude','Claude Code'],['codex','Codex'],['gpt','No agent installed: U-M GPT']])+
       '</div>';
@@ -70,7 +79,7 @@
   function followups(){return '<ul class="rl-follow">'+FOLLOW.map(function(f){return '<li>'+block('Follow-up',f)+'</li>';}).join('')+'</ul>';}
   function step(title,body){return '<li><b>'+title+'</b>'+body+'</li>';}
   function openTerm(os){return os==='win'?'<p>Press the Windows key, type <b>PowerShell</b>, press Enter.</p>':'<p>Press <kbd>Cmd</kbd>+<kbd>Space</kbd>, type <b>Terminal</b>, press Enter.</p>';}
-  function startAgent(os,tool,dir){var cmd=tool==='codex'?'codex':'claude';return block('Terminal','cd '+q(os,dir)+and(os)+cmd);}
+  function startAgent(os,tool,dir){var cmd=tool==='codex'?'codex':'claude';return block('Terminal','cd '+dir+and(os)+cmd);}
   function agentNotes(tool){
     return tool==='codex'
       ?'<p>Codex reads <code>AGENTS.md</code> first: the house rules. Depending on its approval mode, it asks before running commands. Approve each one after you read what it wants to do.</p>'
@@ -82,19 +91,18 @@
     if(window.awBindPersist)window.awBindPersist(box);
     function draw(){
       uid=0;var os=box.querySelector('#'+m+'-os').value,tool=box.querySelector('#'+m+'-tool').value,d=DEMOS[box.querySelector('#'+m+'-which').value]||DEMOS['1'];
-      var p=base(box.querySelector('#'+m+'-path').value),demos=join(os,p,'site','demos'),folder=join(os,demos,d.folder),py=os==='win'?'python':'python3';
-      var s='<ol class="steps rl-steps">'+step('Open a terminal.',openTerm(os))+
-        step('Get the latest version of the repo.',block('Terminal','cd '+q(os,p)+and(os)+'git pull')+'<p class="rl-hint">Haven\'t cloned it yet? Run <code>git clone '+REPO+'.git</code> in the folder where you want it, then use that path above.</p>');
+      var root=base(box.querySelector('#'+m+'-path').value),demos=rel(os,'site','demos'),folder=rel(os,'site','demos',d.folder),py=os==='win'?'python':'python3';
+      var s='<ol class="steps rl-steps">'+step('Open a terminal.',openTerm(os))+goStep(os,root);
       if(tool==='gpt'){
         s+=step('Open the demo data.','<p><a href="'+RAW+'demos/'+d.folder+'/'+d.file+'" target="_blank" rel="noopener">'+h(d.file)+'</a> (opens as plain text). Select all and copy it.</p>')+
           step('In U-M GPT, paste the prompt, then the data.',block('Prompt for U-M GPT',P[d.prompt]+'\n\nWrite the complete Python script and explain it in plain English. Here is the file:'))+
-          step('Save and run the script it writes.','<p>Save the script with a text editor into the demo folder, for example as <code>script.py</code>, then:</p>'+block('Terminal','cd '+q(os,folder)+and(os)+py+' script.py'));
+          step('Save and run the script it writes.','<p>Save the script with a text editor into <code>'+h(folder)+'</code> inside your copy, for example as <code>script.py</code>, then:</p>'+block('Terminal','cd '+folder+and(os)+py+' script.py'));
       }else{
         s+=step('Start '+(tool==='codex'?'Codex':'Claude Code')+' in the demos folder.',startAgent(os,tool,demos)+agentNotes(tool))+
           step('Paste this prompt and press Enter.',block('Prompt · '+d.name,P[d.prompt]));
         if(d.extra!=null)s+=step('Optional second beat: the AI part.',block('Prompt',P[d.extra]));
       }
-      s+=step('Look at what it made.',block('Terminal',(os==='win'?'ii ':'open ')+q(os,folder))+'<p>Compare it with “Reveal: what it should find” further down this page. To run it again from scratch, delete the new files it created and keep the original data.</p>')+'</ol>'+tips();
+      s+=step('Look at what it made.','<p>Ask it: <i>“Show me the first rows of the file you made.”</i> Or quit (<code>/exit</code> in Claude Code, <kbd>Ctrl</kbd>+<kbd>C</kbd> in Codex) and open the folder:</p>'+block('Terminal',tool==='gpt'?(os==='win'?'ii .':'open .'):(os==='win'?'ii ':'open ')+d.folder)+'<p>Compare it with “Reveal: what it should find” further down this page. To run it again from scratch, delete the new files it created and keep the original data.</p>')+'</ol>'+tips();
       box.querySelector('.rl-out').innerHTML=s;
     }
     box.addEventListener('input',draw);box.addEventListener('change',draw);draw();
@@ -114,9 +122,9 @@
       '<div class="rl-out" aria-live="polite"></div>';
     if(window.awBindPersist)window.awBindPersist(box);
     var F=function(id){return box.querySelector('#'+m+'-'+id);};
-    function fill(k,save){var d=PROJ[k]||PROJ.own;F('files').value=d.files;F('unit').value=d.unit;F('output').value=d.output;F('columns').value=d.columns;F('rules').value=d.rules;F('judgment').value=d.judgment;
-      if(save)['files','unit','output','columns','rules','judgment'].forEach(function(id){F(id).dispatchEvent(new Event('input',{bubbles:true}));});}
-    F('proj').addEventListener('change',function(){fill(F('proj').value,true);});
+    function fill(k){var d=PROJ[k]||PROJ.own;F('files').value=d.files;F('unit').value=d.unit;F('output').value=d.output;F('columns').value=d.columns;F('rules').value=d.rules;F('judgment').value=d.judgment;
+      ['files','unit','output','columns','rules','judgment'].forEach(function(id){F(id).dispatchEvent(new Event('input',{bubbles:true}));});}
+    F('proj').addEventListener('change',function(){fill(F('proj').value);});
     if(!F('unit').value&&!F('rules').value)fill(F('proj').value);
     function prompt(){
       var fs=files(F('files').value),many=fs.length>1,txt=fs.length&&!/\.csv$/i.test(fs[0]);
@@ -124,7 +132,7 @@
       L.push((fs.length?'Look at '+fs.join(' and ')+' in this folder. '+(many?'They are the originals, so don\'t edit them.':'It\'s the original, so don\'t edit it.'):'Look at the data files in this folder. They are the originals, so don\'t edit them.')+' Everything here is dummy data.','');
       if(F('unit').value.trim())L.push('The smallest useful step: '+F('unit').value.trim(),'');
       var cols=F('columns').value.trim(),out=F('output').value.trim()||'results.csv';
-      L.push('Write a short Python script that creates '+out+(cols?(txt||many?' with these columns: ':' with every original row plus these new columns: ')+cols:'')+'.');
+      L.push('Write a short Python script that creates '+out+(cols?(txt?' with these columns: ':' with every original row plus these new columns: ')+cols:'')+'.');
       var rules=F('rules').value.split('\n').map(function(r){return r.trim();}).filter(Boolean);
       if(rules.length){L.push('Rules, in code:');rules.forEach(function(r){L.push('- '+r);});}
       L.push('If a row doesn\'t fit the rules, mark it "needs review" and give the reason. Don\'t guess.');
@@ -134,18 +142,18 @@
       return L.join('\n');
     }
     function draw(){
-      uid=100;var os=F('os').value,tool=F('tool').value,p=base(F('path').value),work=join(os,p,'my-work'),py=os==='win'?'python':'python3';
+      uid=100;var os=F('os').value,tool=F('tool').value,root=base(F('path').value),work='my-work',py=os==='win'?'python':'python3';
       var d=PROJ[F('proj').value]||PROJ.own;box.querySelector('.rl-proj-hint').textContent=d.hint||'';
-      var fs=files(F('files').value),srcs=fs.map(function(f){return join(os,p,'site','data',f);}),rules=[join(os,p,'site','demos','CLAUDE.md'),join(os,p,'site','demos','AGENTS.md')];
+      var fs=files(F('files').value),srcs=fs.map(function(f){return rel(os,'site','data',f);}),rules=[rel(os,'site','demos','CLAUDE.md'),rel(os,'site','demos','AGENTS.md')];
       var all=srcs.concat(rules),copy=os==='win'
-        ?'New-Item -ItemType Directory -Force '+q(os,work)+' | Out-Null; Copy-Item '+all.map(function(x){return q(os,x);}).join(', ')+' -Destination '+q(os,work)
-        :'mkdir -p '+q(os,work)+' && cp '+all.map(function(x){return q(os,x);}).join(' ')+' '+q(os,work)+'/';
-      var s='<ol class="steps rl-steps">'+step('Open a terminal.',openTerm(os))+
+        ?'New-Item -ItemType Directory -Force my-work | Out-Null; Copy-Item '+all.join(', ')+' -Destination my-work'
+        :'mkdir -p my-work && cp '+all.join(' ')+' my-work/';
+      var s='<ol class="steps rl-steps">'+step('Open a terminal.',openTerm(os))+goStep(os,root)+
         step('Make your own work folder, with your data and the house rules.',block('Terminal',copy)+'<p class="rl-hint">This copies your data file'+(fs.length>1?'s':'')+' and the house rules into <code>my-work</code> inside your copy of the repo. The originals stay untouched.</p>');
       if(tool==='gpt'){
         s+=step('Open your data.','<p>'+(fs.length?fs.map(function(f){return '<a href="'+RAW+'data/'+h(f)+'" target="_blank" rel="noopener">'+h(f)+'</a>';}).join(', '):'Your data file')+' (opens as plain text). Select all and copy it.</p>')+
           step('In U-M GPT, paste your prompt, then the data.',block('Your prompt for U-M GPT',prompt()+'\n\nWrite the complete Python script and explain it in plain English. Here is the data:'))+
-          step('Save and run the script it writes.','<p>Save it with a text editor in <code>my-work</code>, for example as <code>script.py</code>, then:</p>'+block('Terminal','cd '+q(os,work)+and(os)+py+' script.py'));
+          step('Save and run the script it writes.','<p>Save it with a text editor in <code>my-work</code> inside your copy, for example as <code>script.py</code>, then:</p>'+block('Terminal','cd my-work'+and(os)+py+' script.py'));
       }else{
         s+=step('Start '+(tool==='codex'?'Codex':'Claude Code')+' in your work folder.',startAgent(os,tool,work)+agentNotes(tool))+
           step('Paste your prompt and press Enter.',block('Your prompt',prompt()));
